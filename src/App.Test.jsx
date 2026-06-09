@@ -2,14 +2,17 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import App from './App';
 
-describe('Counter button', () => {
-  it('shows initial count and increments on click', () => {
+describe('Dark Mode Toggle', () => {
+  it('toggles button text between Light and Dark', () => {
     render(<App />);
 
-    const counter = screen.getByRole('button', { name: /count is 0/i });
-    expect(counter).toBeDefined();
+    const toggle = screen.getByRole('button', { name: /light/i });
+    expect(toggle).toBeDefined();
 
-    fireEvent.click(counter);
-    expect(screen.getByRole('button', { name: /count is 1/i })).toBeDefined();
+    fireEvent.click(toggle);
+    expect(screen.getByRole('button', { name: /dark/i })).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: /dark/i }));
+    expect(screen.getByRole('button', { name: /light/i })).toBeDefined();
   });
 });

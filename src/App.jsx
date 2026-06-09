@@ -1,121 +1,85 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 
+const initialProducts = [
+  { id: 1, title: 'T-shirt', category: 'Clothing', price: 19.99 },
+  { id: 2, title: 'Jeans', category: 'Clothing', price: 49.99 },
+  { id: 3, title: 'Headphones', category: 'Electronics', price: 89.99 },
+  { id: 4, title: 'Novel', category: 'Books', price: 14.99 },
+]
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [dark, setDark] = useState(false)
+  const [category, setCategory] = useState('All')
+  const [cart, setCart] = useState([])
+
+  const categories = ['All', ...Array.from(new Set(initialProducts.map(p => p.category)))]
+
+  const filtered = category === 'All' ? initialProducts : initialProducts.filter(p => p.category === category)
+
+  function addToCart(product) {
+    setCart(prev => {
+      const existing = prev.find(item => item.id === product.id)
+      if (existing) {
+        return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item)
+      }
+      return [...prev, { ...product, qty: 1 }]
+    })
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className={dark ? 'app dark' : 'app'}>
+      <header className="app-header">
+        <h1>Shopping App</h1>
+        <div className="header-controls">
+          <button onClick={() => setDark(d => !d)} aria-pressed={dark}>
+            {dark ? 'Dark' : 'Light'}
+          </button>
+          <div className="cart">
+            <strong>Cart:</strong> {cart.reduce((s, i) => s + i.qty, 0)} items
+            {cart.length > 0 && (
+              <ul>
+                {cart.map(i => (
+                  <li key={i.id}>{i.title} × {i.qty}</li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      </header>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      <main className="main">
+        <div className="filters">
+          <label>
+            Category:
+            <select value={category} onChange={e => setCategory(e.target.value)}>
+              {categories.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </label>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        <section className="products">
+          {filtered.length === 0 ? (
+            <p>No products available.</p>
+          ) : (
+            filtered.map(p => (
+              <div className="product" key={p.id}>
+                <div className="product-info">
+                  <h3>{p.title}</h3>
+                  <p className="category">{p.category}</p>
+                  <p className="price">${p.price.toFixed(2)}</p>
+                </div>
+                <div className="product-actions">
+                  <button onClick={() => addToCart(p)}>Add to Cart</button>
+                </div>
+              </div>
+            ))
+          )}
+        </section>
+      </main>
+    </div>
   )
 }
 
